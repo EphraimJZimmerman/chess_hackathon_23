@@ -9,11 +9,16 @@
 2. Install required dependencies using `pip install -r requirements.txt`
 3. Run the application using `python bot.py`
 
+## Submission
+
+1. A team member is responsible for uploading a link to your `chess_hackathon_23` fork, accompanied by a video that provides an in-depth explanation of your code and overall logic. All team members are expected to appear in the video, which should have a duration of 2-3 minutes.
+2. You have until 11:59pm on November 12th, 2023 to submit your build to [DevPost](https://quants.devpost.com/). 
+
 ## Rules
 
 1. Apart from the libraries listed in the requirements.txt file, you're allowed to utilize only scikit-learn, pandas, and numpy.
 2. You're free to consult online resources, such as research papers, ChatGPT, or YouTube videos, for reference. However, direct copying of open-source solutions from platforms like GitHub or using APIs is not permitted.
-
+3. You are permitted to have up to 4 members working with your team. You must be a part of the Brandeis University community.
 ## Usage 
 
 This skeleton is heavily derived from the [python-chess](https://python-chess.readthedocs.io/en/latest/) open-source library. You may use any aspect of this library for the purposes of building your bot (other than calling premade models to determine moves). 
