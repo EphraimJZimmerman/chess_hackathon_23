@@ -46,6 +46,7 @@ def get_move(board: chess.Board, best_move=False) -> str:
             board.is_game_over()
         else:
             move = str(random.choice([_ for _ in board.legal_moves]))
+            print("AI move:", move)
             return move
     else:
 

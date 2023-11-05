@@ -7,8 +7,8 @@ Website: brandeisquantclub.com; quants.devpost.com
 
 Description:
 
-For any technical issues questions or additional assistance please feel free to reach out to
-the "on-call" hackathon support team via email at quants@brandeis.edu
+For any technical issues or questions please feel free to reach out to
+the "on-call" hackathon support member via email at quants@brandeis.edu
 
 Website/GitHub Repository:
 You can find the latest updates, documentation, and additional resources for this project on the
@@ -30,11 +30,10 @@ import test_bot
 def game_manager() -> Iterator[None]:
     """Creates context for game."""
 
-    # DO NOT EDIT. This is used for judging.
-
     print("===== GAME STARTED =====")
     ping: float = time.perf_counter()
     try:
+        # DO NOT EDIT. This will be replaced w/ judging context manager.
         yield
     finally:
         pong: float = time.perf_counter()
@@ -53,8 +52,8 @@ class Bot:
             To check if, from an initial position, the new position is valid.
 
             Args:
-                initial_position (str): The starting position given chess notation
-                new_position (str): The new position given chess notation
+                initial_position (str): The starting position given chess notation.
+                new_position (str): The new position given chess notation.
 
             Returns:
                 bool: If this move is legal
@@ -67,7 +66,7 @@ class Bot:
             The main call and response loop for playing a game of chess.
 
             Returns:
-                str: The current location and the next move. For example, e3e4.
+                str: The current location and the next move.
         """
 
         # Assume that you are playing an arbitrary game. This function, which is
