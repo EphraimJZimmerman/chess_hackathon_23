@@ -49,9 +49,8 @@ def get_move(board: chess.Board, best_move=False) -> str:
             print("AI move:", move)
             return move
     else:
-
+        # This makes the bot slightly better. It will choose the best move, if applicable.
         url = "https://www.chessdb.cn/cdb.php?action=querybest&board=" + board.fen().replace(" ", "%")
-
         try:
             if board.turn:
                 response = requests.get(url, timeout=10.0)
