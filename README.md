@@ -1,4 +1,4 @@
-# The Brandeis Quant Club ML/AI Competition (November 2023)
+# The Brandeis Quant Club ML/AI Competition
 
 **Project Description**: In this Python-driven competition, you will be building a model to play chess. Specifically, given any arbitrary position, what is the next best move?
 
