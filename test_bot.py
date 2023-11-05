@@ -7,8 +7,8 @@ Website: brandeisquantclub.com; quants.devpost.com
 
 Description:
 
-For any technical issues questions or additional assistance please feel free to reach out to
-the "on-call" hackathon support team via email at quants@brandeis.edu
+For any technical issues or questions please feel free to reach out to
+the "on-call" hackathon support member via email at quants@brandeis.edu
 
 Website/GitHub Repository:
 You can find the latest updates, documentation, and additional resources for this project on the
