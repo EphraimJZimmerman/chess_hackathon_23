@@ -22,7 +22,6 @@ import chess
 import requests
 import logging
 import random
-
 # DO NOT MODIFY
 
 

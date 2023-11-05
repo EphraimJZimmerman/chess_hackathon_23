@@ -43,8 +43,8 @@ def game_manager() -> Iterator[None]:
 
 
 class Bot:
-    def __init__(self):
-        self.board = chess.Board()
+    def __init__(self, fen=None):
+        self.board = chess.Board(fen if fen else "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
     def check_move_is_legal(self, initial_position, new_position) -> bool:
 
@@ -77,12 +77,23 @@ class Bot:
         return move
 
 
+# Add promotion stuff
+
 if __name__ == "__main__":
 
-    chess_bot = Bot()
+    chess_bot = Bot()  # you can enter a FEN here, like Bot("...")
     with game_manager():
 
-        # Modify this in any way you'd like!
+        """
+        
+        Feel free to make any adjustments as you see fit. The desired outcome 
+        is to generate the next best move, regardless of whether the bot 
+        is controlling the white or black pieces. The code snippet below 
+        serves as a useful testing framework from which you can begin 
+        developing your strategy.
+
+        """
+
         playing = True
 
         while playing:
@@ -100,4 +111,5 @@ if __name__ == "__main__":
 
                 # EX: Outcome(termination=<Termination.CHECKMATE: 1>, winner=True)
                 print(chess_bot.board.outcome())
+
                 playing = False
