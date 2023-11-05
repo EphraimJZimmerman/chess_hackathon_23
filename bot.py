@@ -6,8 +6,6 @@ Email: quants@brandeis.edu
 Website: brandeisquantclub.com; quants.devpost.com
 
 Description:
-This skeleton code is provided in tandem to the Dropbox description file
-that you have been emailed.
 
 For any technical issues questions or additional assistance please feel free to reach out to
 the "on-call" hackathon support team via email at quants@brandeis.edu
@@ -22,8 +20,6 @@ This code is open-source and released under the MIT License. See the LICENSE fil
 
 import random
 import chess
-import requests
-import json
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -32,6 +28,10 @@ import test_bot
 
 @contextmanager
 def game_manager() -> Iterator[None]:
+    """Creates context for game."""
+
+    # DO NOT EDIT. This is used for judging.
+
     print("===== GAME STARTED =====")
     ping: float = time.perf_counter()
     try:
@@ -48,16 +48,33 @@ class Bot:
         self.board = chess.Board()
 
     def check_move_is_legal(self, initial_position, new_position) -> bool:
-        """Used to check if, from an initial position, the new position is valid."""
+
+        """
+            To check if, from an initial position, the new position is valid.
+
+            Args:
+                initial_position (str): The starting position given chess notation
+                new_position (str): The new position given chess notation
+
+            Returns:
+                bool: If this move is legal
+        """
+
         return chess.Move.from_uci(initial_position + new_position) in self.board.legal_moves
 
     def next_move(self) -> str:
-        """The main call and response loop for playing a game of chess"""
+        """
+            The main call and response loop for playing a game of chess.
 
-        starting_position = "b7"
-        end_position = "b6"
+            Returns:
+                str: The current location and the next move. For example, e3e4.
+        """
+
+        # Assume that you are playing an arbitrary game. This function, which is
+        # the core "brain" of the bot, should return the next move in any circumstance.
+
         move = str(random.choice([_ for _ in self.board.legal_moves]))
-        print("move " + move)
+        print("My move: " + move)
         return move
 
 
@@ -68,23 +85,20 @@ if __name__ == "__main__":
 
         # Modify this in any way you'd like!
         playing = True
-        white_won = 0
-        black_won = 0
 
-        for game in range(5000):
-            while playing:
-                if chess_bot.board.turn:
-                    chess_bot.board.push_san(test_bot.get_move(chess_bot.board))
-                else:
-                    chess_bot.board.push_san(chess_bot.next_move())
-                print(chess_bot.board, end="\n\n")
+        while playing:
+            if chess_bot.board.turn:
+                chess_bot.board.push_san(test_bot.get_move(chess_bot.board))
+            else:
+                chess_bot.board.push_san(chess_bot.next_move())
+            print(chess_bot.board, end="\n\n")
 
-                if chess_bot.board.is_game_over():
-                    if chess_bot.board.is_stalemate():
-                        print("Is stalemate")
-                    elif chess_bot.board.is_insufficient_material():
-                        print("Is insufficient material")
+            if chess_bot.board.is_game_over():
+                if chess_bot.board.is_stalemate():
+                    print("Is stalemate")
+                elif chess_bot.board.is_insufficient_material():
+                    print("Is insufficient material")
 
-                    # Outcome(termination=<Termination.CHECKMATE: 1>, winner=True)
-                    print(chess_bot.board.outcome())
-                    playing = False
+                # EX: Outcome(termination=<Termination.CHECKMATE: 1>, winner=True)
+                print(chess_bot.board.outcome())
+                playing = False

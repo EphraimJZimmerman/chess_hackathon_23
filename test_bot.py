@@ -1,3 +1,22 @@
+"""
+The Brandeis Quant Club ML/AI Competition (November 2023)
+
+Author: @Ephraim Zimmerman
+Email: quants@brandeis.edu
+Website: brandeisquantclub.com; quants.devpost.com
+
+Description:
+
+For any technical issues questions or additional assistance please feel free to reach out to
+the "on-call" hackathon support team via email at quants@brandeis.edu
+
+Website/GitHub Repository:
+You can find the latest updates, documentation, and additional resources for this project on the
+official website or GitHub repository: https://github.com/EphraimJZimmerman/chess_hackathon_23
+
+License:
+This code is open-source and released under the MIT License. See the LICENSE file for details.
+"""
 
 import chess
 import requests
@@ -9,19 +28,17 @@ import random
 
 def get_move(board: chess.Board, best_move=False) -> str:
     """
+        Gets a move for the current white piece.
 
-    Gets a move for the current white piece.
+        **Bot is not smart -- not intended to be used for training, only for testing
+        game logic.
 
-    **Bot is not smart -- not intended to be used for training, only for testing
-    game logic.
+        Args:
+            board (chess.Board): The entire chess board, which will be evaluated.
+            best_move (bool): If the bot should, when applicable, find the best move.
 
-    Args:
-        board (chess.Board): The entire chess board, which will be evaluated.
-        best_move (bool): If the bot should, when applicable, find the best move.
-
-    Returns:
-        str: The next move.
-
+        Returns:
+            str: The next move.
     """
 
     if not best_move:
