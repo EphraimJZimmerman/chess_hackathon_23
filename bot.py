@@ -23,6 +23,8 @@ import chess
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
+
+import grob.evaluator
 import test_bot
 
 
@@ -72,7 +74,7 @@ class Bot:
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
 
-        move = str(random.choice([_ for _ in self.board.legal_moves]))
+        move = str(grob.evaluator.next_move(self.board))
         print("My move: " + move)
         return move
 
@@ -98,7 +100,7 @@ if __name__ == "__main__":
 
         while playing:
             if chess_bot.board.turn:
-                chess_bot.board.push_san(test_bot.get_move(chess_bot.board))
+                chess_bot.board.push_san(test_bot.get_move(chess_bot.board, best_move=True))
             else:
                 chess_bot.board.push_san(chess_bot.next_move())
             print(chess_bot.board, end="\n\n")
