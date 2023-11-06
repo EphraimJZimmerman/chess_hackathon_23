@@ -105,14 +105,14 @@ def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
     return alpha
 
 
-def next_move(board: chess.Board) -> chess.Move:
+def next_move(board: chess.Board, depth: int) -> chess.Move:
     moves = list(board.legal_moves)
     order_moves(board, moves)
     best_eval = -INF
     best_move = None
     for move in moves:
         board.push(move)
-        if (curr_eval := -search(board, 3, -INF, INF)) > best_eval:
+        if (curr_eval := -search(board, depth, -INF, INF)) > best_eval:
             best_eval = curr_eval
             best_move = move
         board.pop()
