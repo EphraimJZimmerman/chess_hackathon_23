@@ -45,7 +45,7 @@ def evaluate(board: chess.Board) -> float:
     balance = material_balance(board)
     return balance
 
-
+@profile
 def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     """
 
@@ -57,11 +57,13 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
 
     """
     guess = 0
-    move_piece_type = None if board.piece_at(move.from_square) is None else board.piece_at(move.from_square).piece_type
-    capture_piece_type = getattr(board.piece_at(move.to_square), "piece_type", None)
+    move_piece = board.piece_at(move.from_square)
+    move_piece_type = None if move_piece is None else move_piece.piece_type
+    capture_piece = board.piece_at(move.to_square)
+    capture_piece_type = None if capture_piece is None else capture_piece.piece_type
 
     # prioritize easy captures
-    if capture_piece_type is not None:
+    if capture_piece_type is not None and move_piece_type is not None:
         guess += 10 * piece_values[capture_piece_type] - piece_values[move_piece_type]
 
     # prioritize promotions
@@ -71,22 +73,23 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     # prioritize avoiding pawns
     opposite_color = chess.WHITE if board.turn == chess.BLACK else chess.BLACK
     attacking_pawns = board.attackers_mask(opposite_color, move.to_square) | board.pieces_mask(chess.PAWN, opposite_color)
-    if attacking_pawns != 0:
+    if attacking_pawns != 0 and move_piece_type is not None:
         guess -= piece_values[move_piece_type]
 
     return guess
 
 
-def order_moves(board: chess.Board, moves: list[chess.Move]):
-    moves.sort(key=lambda m: guess_move_evaluation(board, m), reverse=True)
+def order_moves(board: chess.Board, moves: chess.LegalMoveGenerator) -> list[chess.Move]:
+    return sorted(moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)
 
 
+@profile
 def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
     if depth == 0:
         return evaluate(board)
 
-    moves = list(board.legal_moves)
-    if len(moves) == 0:
+    moves = board.legal_moves
+    if moves.count() == 0:
         if board.is_checkmate():
             return -INF  # current player has lost
         else:
@@ -105,6 +108,7 @@ def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
     return alpha
 
 
+@profile
 def next_move(board: chess.Board, depth: int) -> chess.Move:
     moves = list(board.legal_moves)
     order_moves(board, moves)
