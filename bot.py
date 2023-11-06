@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
         while playing:
             if chess_bot.board.turn:
-                chess_bot.board.push_san(test_bot.get_move(chess_bot.board, best_move=True))
+                chess_bot.board.push_san(test_bot.get_move(chess_bot.board, best_move=False))
             else:
                 chess_bot.board.push_san(chess_bot.next_move())
             print(chess_bot.board, end="\n\n")

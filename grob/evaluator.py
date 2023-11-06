@@ -58,7 +58,7 @@ def next_move(board: chess.Board) -> chess.Move:
     best_move = None
     for move in board.legal_moves:
         board.push(move)
-        if (curr_eval := search(board, 1, -INF, INF)) > best_eval:
+        if (curr_eval := -search(board, 3, -INF, INF)) > best_eval:
             best_eval = curr_eval
             best_move = move
         board.pop()
