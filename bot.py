@@ -75,7 +75,7 @@ class Bot:
         # the core "brain" of the bot, should return the next move in any circumstance.
 
         move = str(evaluator.next_move(self.board))
-        print("My move: " + move)
+        # print("My move: " + move)
         return move
 
 

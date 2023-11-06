@@ -3,7 +3,9 @@ import time
 
 import chess
 
+import bot
 from grob import evaluator
+from tests.grob.random_bot import RandomBot
 
 
 def evaluation_from_fen(fen: str) -> float:
@@ -62,3 +64,29 @@ def test_ordering_is_more_efficient():
                 with_order_time_total += time.perf_counter() - start
     assert with_order_number_total < without_order_number_total
     assert with_order_time_total < without_order_time_total
+
+
+def test_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 10) -> tuple[int, int, int]:
+    old.board = new.board = chess.Board()
+    wins = draws = loses = 0
+    news_color = chess.WHITE
+    while not new.board.is_game_over():
+        if new.board.turn == news_color:
+            news_move = new.next_move()
+            new.board.push_san(news_move)
+        else:
+            olds_move = old.next_move()
+            new.board.push_san(olds_move)
+    if new.board.is_stalemate():
+        draws += 1
+    elif new.board.is_checkmate():
+        if new.board.turn == news_color:
+            wins += 1
+        else:
+            loses += 1
+    return wins, draws, loses
+
+
+def test_grob_beats_random():
+    wins, draws, loses = test_two_bots(RandomBot(), bot.Bot(), number_games=1)
+    assert wins == 1
