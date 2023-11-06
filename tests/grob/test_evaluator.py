@@ -1,3 +1,6 @@
+import logging
+import time
+
 import chess
 
 from grob import evaluator
@@ -5,7 +8,7 @@ from grob import evaluator
 
 def evaluation_from_fen(fen: str) -> float:
     board = chess.Board(fen)
-    return evaluator.search(board, 2, -evaluator.INF, evaluator.INF)
+    return evaluator.search(board, 2)
 
 
 def test_obvious_black_win():
@@ -32,3 +35,21 @@ def test_guess_move_evaluation():
     not_silly_bishop = chess.Move(chess.square(5, 7), chess.square(1, 3))
     assert evaluator.guess_move_evaluation(board, silly_bishop) < 0
     assert evaluator.guess_move_evaluation(board, not_silly_bishop) >= 0
+
+
+def test_ordering_is_more_efficient():
+    complex_board = chess.Board("1k1r3r/pp3ppp/2pbnn2/5b2/2N5/2P1BPP1/PP3PBP/3RR1K1 b - - 13 18")
+
+    evaluator.debug_count = 0
+    start = time.perf_counter()
+    evaluator.search(complex_board, 3, count_runs=True, guess_move_order=False)
+    without_order_number = evaluator.debug_count
+    without_order_time = time.perf_counter() - start
+
+    evaluator.debug_count = 0
+    start = time.perf_counter()
+    evaluator.search(complex_board, 3, count_runs=True, guess_move_order=True)
+    with_order_number = evaluator.debug_count
+    with_order_time = time.perf_counter() - start
+    assert with_order_number < without_order_number
+    assert with_order_time < without_order_time

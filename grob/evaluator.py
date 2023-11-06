@@ -13,6 +13,9 @@ piece_values = {
 INF = float("inf")
 
 
+debug_count = 0
+
+
 def material_balance(board: chess.Board) -> float:
     """
 
@@ -84,7 +87,12 @@ def order_moves(board: chess.Board, moves: list[chess.Move]):
     moves.sort(key=lambda m: guess_move_evaluation(board, m), reverse=True)
 
 
-def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
+def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = INF,
+           count_runs: bool = False, guess_move_order: bool = True) -> float:
+    if count_runs:
+        global debug_count
+        debug_count += 1
+
     if depth == 0:
         return evaluate(board)
 
@@ -95,10 +103,11 @@ def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
         else:
             return 0  # game is a draw
 
-    order_moves(board, moves)
+    if guess_move_order:
+        order_moves(board, moves)
     for move in moves:
         board.push(move)
-        evaluation = -search(board, depth - 1, -beta, -alpha)
+        evaluation = -search(board, depth - 1, -beta, -alpha, count_runs=count_runs, guess_move_order=guess_move_order)
         board.pop()
         if evaluation != 0:
             logging.debug(f"Eval for {move}: {evaluation}")
@@ -115,7 +124,7 @@ def next_move(board: chess.Board) -> chess.Move:
     best_move = None
     for move in moves:
         board.push(move)
-        if (curr_eval := -search(board, 3, -INF, INF)) > best_eval:
+        if (curr_eval := -search(board, 3)) > best_eval:
             best_eval = curr_eval
             best_move = move
         board.pop()
