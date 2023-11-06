@@ -17,6 +17,27 @@ pip install -r dev_requirements.txt
 jupyter lab
 ```
 
+## Performance Testing
+
+### `cProfile`
+
+<https://docs.python.org/3/library/profile.html>
+
+```
+python -m cProfile -m grob  # test a module
+python -m cProfile perf.py  # test a script
+```
+
+### `line_profiler`
+
+<https://github.com/pyutils/line_profiler>
+
+```
+kernprof -l perf.py
+
+python -m line_profiler -rmt "perf.py.lprof"
+```
+
 
 # The Brandeis Quant Club ML/AI Competition
 

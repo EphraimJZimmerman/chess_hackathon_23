@@ -63,7 +63,7 @@ class Bot:
 
         return chess.Move.from_uci(initial_position + new_position) in self.board.legal_moves
 
-    def next_move(self) -> str:
+    def next_move(self, depth: int = 3) -> str:
         """
             The main call and response loop for playing a game of chess.
 
@@ -74,7 +74,7 @@ class Bot:
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
 
-        move = str(evaluator.next_move(self.board))
+        move = str(evaluator.next_move(self.board, depth=depth))
         print("My move: " + move)
         return move
 
