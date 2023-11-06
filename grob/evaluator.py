@@ -1,4 +1,5 @@
 import chess
+import logging
 
 piece_values = {
     chess.PAWN: 1,
@@ -44,6 +45,8 @@ def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
         board.push(move)
         evaluation = -search(board, depth - 1, -beta, -alpha)
         board.pop()
+        if evaluation != 0:
+            logging.debug(f"Eval for {move}: {evaluation}")
         if evaluation >= beta:
             return beta
         alpha = max(alpha, evaluation)
@@ -55,7 +58,7 @@ def next_move(board: chess.Board) -> chess.Move:
     best_move = None
     for move in board.legal_moves:
         board.push(move)
-        if (curr_eval := search(board, 3, -INF, INF)) > best_eval:
+        if (curr_eval := search(board, 1, -INF, INF)) > best_eval:
             best_eval = curr_eval
             best_move = move
         board.pop()

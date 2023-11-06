@@ -1,10 +1,27 @@
 from bot import Bot
+from test_bot import get_move
+from grob import evaluator
+import logging
+
+# logging.basicConfig(level=logging.DEBUG)
 
 
-bot = Bot("r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq - 1 0")
-print(bot.board, end="\n\n")
-next_move = bot.next_move()
-print(f"{next_move=}")
+grob_bot = Bot()
 
-bot.board.push_san(next_move)
-print(bot.board, end="\n\n")
+while not grob_bot.board.is_game_over():
+    input()
+    move = grob_bot.next_move()
+    grob_bot.board.push_san(move)
+    print(grob_bot.board.turn, evaluator.evaluate(grob_bot.board))
+    print(grob_bot.board, end="\n\n")
+
+    if grob_bot.board.is_game_over():
+        break
+
+    input()
+
+    move = get_move(grob_bot.board)
+    grob_bot.board.push_san(move)
+    print(grob_bot.board.turn, evaluator.evaluate(grob_bot.board))
+    print(grob_bot.board, end="\n\n")
+
