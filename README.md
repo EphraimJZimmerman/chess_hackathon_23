@@ -1,3 +1,23 @@
+# The Legendary Grob Bot
+
+## Quickstart
+
+```
+pip install -r requirements.txt
+
+python -m grob
+```
+
+## Visualization
+
+```
+pip install -r requirements.txt
+pip install -r dev_requirements.txt
+
+jupyter lab
+```
+
+
 # The Brandeis Quant Club ML/AI Competition
 
 **Project Description**: In this Python-driven competition, you will be building a model to play chess. Specifically, given any arbitrary position, what is the next best move?
