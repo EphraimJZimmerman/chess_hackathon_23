@@ -71,8 +71,9 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
         guess += piece_values[move.promotion]
 
     # prioritize avoiding pawns
-    opposite_color = chess.WHITE if board.turn == chess.BLACK else chess.BLACK
-    attacking_pawns = board.attackers_mask(opposite_color, move.to_square) | board.pieces_mask(chess.PAWN, opposite_color)
+    opposite_color = not board.turn
+    attacking_pawns = board.attackers_mask(opposite_color, move.to_square) & \
+        board.pieces_mask(chess.PAWN, opposite_color)
     if attacking_pawns != 0:
         guess -= piece_values[move_piece_type]
 
@@ -92,7 +93,7 @@ def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
         if board.is_checkmate():
             return -INF  # current player has lost
         else:
-            return 0     # game is a draw
+            return 0  # game is a draw
 
     order_moves(board, moves)
     for move in moves:

@@ -26,3 +26,9 @@ def test_guess_move_evaluation():
     # prioritizes the correct captures
     assert evaluator.guess_move_evaluation(board, pawn_takes) > evaluator.guess_move_evaluation(board, knight_takes)
     assert evaluator.guess_move_evaluation(board, knight_takes) > evaluator.guess_move_evaluation(board, none_takes)
+    # test pawn avoiding
+    board = chess.Board("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/3P1N2/PPP2PPP/RNBQKB1R b KQkq - 0 3")
+    silly_bishop = chess.Move(chess.square(5, 7), chess.square(0, 2))
+    not_silly_bishop = chess.Move(chess.square(5, 7), chess.square(1, 3))
+    assert evaluator.guess_move_evaluation(board, silly_bishop) < 0
+    assert evaluator.guess_move_evaluation(board, not_silly_bishop) >= 0
