@@ -74,8 +74,8 @@ class Bot:
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
 
-        move = str(evaluator.next_move(self.board, depth=depth))
-        print("My move: " + move)
+        move = str(evaluator.next_move(self.board))
+        # print("My move: " + move)
         return move
 
 

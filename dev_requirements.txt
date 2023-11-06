@@ -1,2 +1,3 @@
+pytest
 jupyterlab
 line_profiler

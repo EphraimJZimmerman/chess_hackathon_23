@@ -13,6 +13,9 @@ piece_values = {
 INF = float("inf")
 
 
+debug_count = 0
+
+
 def material_balance(board: chess.Board) -> float:
     """
 
@@ -71,8 +74,9 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
         guess += piece_values[move.promotion]
 
     # prioritize avoiding pawns
-    opposite_color = chess.WHITE if board.turn == chess.BLACK else chess.BLACK
-    attacking_pawns = board.attackers_mask(opposite_color, move.to_square) | board.pieces_mask(chess.PAWN, opposite_color)
+    opposite_color = not board.turn
+    attacking_pawns = board.attackers_mask(opposite_color, move.to_square) & \
+        board.pieces_mask(chess.PAWN, opposite_color)
     if attacking_pawns != 0 and move_piece_type is not None:
         guess -= piece_values[move_piece_type]
 
@@ -83,8 +87,12 @@ def order_moves(board: chess.Board, moves: chess.LegalMoveGenerator) -> list[che
     return sorted(moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)
 
 
-@profile
-def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
+def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = INF,
+           count_runs: bool = False, guess_move_order: bool = True) -> float:
+    if count_runs:
+        global debug_count
+        debug_count += 1
+
     if depth == 0:
         return evaluate(board)
 
@@ -93,12 +101,13 @@ def search(board: chess.Board, depth: int, alpha: float, beta: float) -> float:
         if board.is_checkmate():
             return -INF  # current player has lost
         else:
-            return 0     # game is a draw
+            return 0  # game is a draw
 
-    order_moves(board, moves)
+    if guess_move_order:
+        order_moves(board, moves)
     for move in moves:
         board.push(move)
-        evaluation = -search(board, depth - 1, -beta, -alpha)
+        evaluation = -search(board, depth - 1, -beta, -alpha, count_runs=count_runs, guess_move_order=guess_move_order)
         board.pop()
         if evaluation != 0:
             logging.debug(f"Eval for {move}: {evaluation}")
@@ -116,7 +125,8 @@ def next_move(board: chess.Board, depth: int) -> chess.Move:
     best_move = None
     for move in moves:
         board.push(move)
-        if (curr_eval := -search(board, depth, -INF, INF)) > best_eval:
+        
+        if (curr_eval := -search(board, 3)) > best_eval:
             best_eval = curr_eval
             best_move = move
         board.pop()
