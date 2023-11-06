@@ -38,18 +38,27 @@ def test_guess_move_evaluation():
 
 
 def test_ordering_is_more_efficient():
-    complex_board = chess.Board("1k1r3r/pp3ppp/2pbnn2/5b2/2N5/2P1BPP1/PP3PBP/3RR1K1 b - - 13 18")
+    without_order_number_total = 0
+    without_order_time_total = 0
+    with_order_number_total = 0
+    with_order_time_total = 0
 
-    evaluator.debug_count = 0
-    start = time.perf_counter()
-    evaluator.search(complex_board, 3, count_runs=True, guess_move_order=False)
-    without_order_number = evaluator.debug_count
-    without_order_time = time.perf_counter() - start
+    with open("../data/test_positions.txt", "r") as games:
+        for count, line in enumerate(games):
+            if count == 10:
+                break
+            if count % 2 == 1:
+                position = chess.Board(line)
+                evaluator.debug_count = 0
+                start = time.perf_counter()
+                evaluator.search(position, 3, count_runs=True, guess_move_order=False)
+                without_order_number_total += evaluator.debug_count
+                without_order_time_total += time.perf_counter() - start
 
-    evaluator.debug_count = 0
-    start = time.perf_counter()
-    evaluator.search(complex_board, 3, count_runs=True, guess_move_order=True)
-    with_order_number = evaluator.debug_count
-    with_order_time = time.perf_counter() - start
-    assert with_order_number < without_order_number
-    assert with_order_time < without_order_time
+                evaluator.debug_count = 0
+                start = time.perf_counter()
+                evaluator.search(position, 3, count_runs=True, guess_move_order=True)
+                with_order_number_total += evaluator.debug_count
+                with_order_time_total += time.perf_counter() - start
+    assert with_order_number_total < without_order_number_total
+    assert with_order_time_total < without_order_time_total
