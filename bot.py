@@ -24,7 +24,7 @@ import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-import grob.evaluator
+from grob import evaluator
 import test_bot
 
 
@@ -74,7 +74,7 @@ class Bot:
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
 
-        move = str(grob.evaluator.next_move(self.board))
+        move = str(evaluator.next_move(self.board))
         print("My move: " + move)
         return move
 
