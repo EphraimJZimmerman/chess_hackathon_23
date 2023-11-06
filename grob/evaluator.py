@@ -48,7 +48,7 @@ def evaluate(board: chess.Board) -> float:
     balance = material_balance(board)
     return balance
 
-
+@profile
 def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     """
 
@@ -66,7 +66,7 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     capture_piece_type = None if capture_piece is None else capture_piece.piece_type
 
     # prioritize easy captures
-    if capture_piece_type is not None:
+    if capture_piece_type is not None and move_piece_type is not None:
         guess += 10 * piece_values[capture_piece_type] - piece_values[move_piece_type]
 
     # prioritize promotions
@@ -77,14 +77,14 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     opposite_color = not board.turn
     attacking_pawns = board.attackers_mask(opposite_color, move.to_square) & \
         board.pieces_mask(chess.PAWN, opposite_color)
-    if attacking_pawns != 0:
+    if attacking_pawns != 0 and move_piece_type is not None:
         guess -= piece_values[move_piece_type]
 
     return guess
 
 
-def order_moves(board: chess.Board, moves: list[chess.Move]):
-    moves.sort(key=lambda m: guess_move_evaluation(board, m), reverse=True)
+def order_moves(board: chess.Board, moves: chess.LegalMoveGenerator) -> list[chess.Move]:
+    return sorted(moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)
 
 
 def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = INF,
@@ -96,8 +96,8 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
     if depth == 0:
         return evaluate(board)
 
-    moves = list(board.legal_moves)
-    if len(moves) == 0:
+    moves = board.legal_moves
+    if moves.count() == 0:
         if board.is_checkmate():
             return -INF  # current player has lost
         else:
@@ -117,13 +117,15 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
     return alpha
 
 
-def next_move(board: chess.Board) -> chess.Move:
+@profile
+def next_move(board: chess.Board, depth: int) -> chess.Move:
     moves = list(board.legal_moves)
     order_moves(board, moves)
     best_eval = -INF
     best_move = None
     for move in moves:
         board.push(move)
+        
         if (curr_eval := -search(board, 3)) > best_eval:
             best_eval = curr_eval
             best_move = move
