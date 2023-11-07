@@ -1,4 +1,3 @@
-import logging
 import time
 
 import chess
@@ -53,37 +52,58 @@ def test_ordering_is_more_efficient():
                 position = chess.Board(line)
                 evaluator.reset_debug_vars()
                 start = time.perf_counter()
-                evaluator.search(position, 3, count_runs=True, guess_move_order=False)
+                evaluator.search(position, 3, debug_counts=True, guess_move_order=False)
                 without_order_number_total += evaluator.debug_search_count
                 without_order_time_total += time.perf_counter() - start
 
                 evaluator.reset_debug_vars()
                 start = time.perf_counter()
-                evaluator.search(position, 3, count_runs=True, guess_move_order=True)
+                evaluator.search(position, 3, debug_counts=True, guess_move_order=True)
                 with_order_number_total += evaluator.debug_search_count
                 with_order_time_total += time.perf_counter() - start
     assert with_order_number_total < without_order_number_total
     assert with_order_time_total < without_order_time_total
 
 
-def test_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 10) -> tuple[int, int, int]:
+def test_check_all_captures():
+    board = chess.Board("r4rk1/1p2npb1/pqn1p2p/1B1pPbp1/Q2P4/1PN1BN2/P4PPP/2R1K2R w K - 0 14")
+    evaluator.search(board, 0, search_captures=False, search_checks=False, debug_counts=True)
+    depth_without_captures = evaluator.debug_search_depth
+    count_without_captures = evaluator.debug_search_count
+
+    evaluator.reset_debug_vars()
+    evaluator.search(board, 0, search_captures=True, search_checks=False, debug_counts=True)
+    depth_with_captures = evaluator.debug_search_depth
+    count_with_captures = evaluator.debug_search_count
+
+    evaluator.reset_debug_vars()
+    evaluator.search(board, 0, search_captures=True, search_checks=True, debug_counts=True)
+    depth_with_captures_and_checks = evaluator.debug_search_depth
+    count_with_captures_and_checks = evaluator.debug_search_count
+
+    assert(depth_with_captures > depth_without_captures)
+    assert(depth_with_captures_and_checks > depth_with_captures)
+
+
+def test_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1) -> tuple[int, int, int]:
     old.board = new.board = chess.Board()
     wins = draws = loses = 0
-    news_color = chess.WHITE
-    while not new.board.is_game_over():
-        if new.board.turn == news_color:
-            news_move = new.next_move()
-            new.board.push_san(news_move)
-        else:
-            olds_move = old.next_move()
-            new.board.push_san(olds_move)
-    if new.board.is_stalemate():
-        draws += 1
-    elif new.board.is_checkmate():
-        if new.board.turn == news_color:
-            wins += 1
-        else:
-            loses += 1
+    for i in range(number_games):
+        news_color = chess.WHITE if i % 2 == 0 else chess.BLACK
+        while not new.board.is_game_over():
+            if new.board.turn == news_color:
+                news_move = new.next_move()
+                new.board.push_san(news_move)
+            else:
+                olds_move = old.next_move()
+                new.board.push_san(olds_move)
+        if new.board.is_stalemate():
+            draws += 1
+        elif new.board.is_checkmate():
+            if new.board.turn == news_color:
+                wins += 1
+            else:
+                loses += 1
     return wins, draws, loses
 
 

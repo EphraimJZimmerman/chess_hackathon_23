@@ -101,19 +101,21 @@ def search_all_captures(board: chess.Board, alpha: float, beta: float, levels_de
         return beta
     alpha = max(alpha, evaluation)
 
-    # unclear if this is the most efficient way of generating these moves
-    enemies = board.occupied_co[not board.turn]
-    capture_moves = board.generate_legal_moves(chess.BB_ALL, enemies)
+    # unclear if this is the most efficient way of generating these moves, could also use board.gives_check
+    capture_moves = board.generate_legal_moves(chess.BB_ALL, board.occupied_co[not board.turn])
     important_moves = capture_moves
     if search_checks:
-        pawn_check_moves = board.generate_legal_moves(board.pieces_mask(chess.PAWN, board.turn), enemies)
-        rook_check_moves = board.generate_legal_moves(board.pieces_mask(chess.ROOK, board.turn), enemies)
-        knight_check_moves = board.generate_legal_moves(board.pieces_mask(chess.KNIGHT, board.turn), enemies)
-        bishop_check_moves = board.generate_legal_moves(board.pieces_mask(chess.BISHOP, board.turn), enemies)
-        queen_check_moves = board.generate_legal_moves(board.pieces_mask(chess.QUEEN, board.turn), enemies)
+        king = board.king(not board.turn)
+        pawn_check_moves = board.generate_legal_moves(board.pieces_mask(chess.PAWN, board.turn), king)
+        rook_check_moves = board.generate_legal_moves(board.pieces_mask(chess.ROOK, board.turn), king)
+        knight_check_moves = board.generate_legal_moves(board.pieces_mask(chess.KNIGHT, board.turn), king)
+        bishop_check_moves = board.generate_legal_moves(board.pieces_mask(chess.BISHOP, board.turn), king)
+        queen_check_moves = board.generate_legal_moves(board.pieces_mask(chess.QUEEN, board.turn), king)
         important_moves = chain(capture_moves, pawn_check_moves, rook_check_moves,
                                 knight_check_moves, bishop_check_moves, queen_check_moves)
-    sorted(capture_moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)  # since it's not a generator
+
+    important_moves = list(important_moves)  # sorted not working on generator?
+    sorted(important_moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)
 
     for move in important_moves:
         board.push(move)
