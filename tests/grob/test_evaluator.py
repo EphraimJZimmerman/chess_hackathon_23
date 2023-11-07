@@ -51,16 +51,16 @@ def test_ordering_is_more_efficient():
                 break
             if count % 2 == 1:
                 position = chess.Board(line)
-                evaluator.debug_count = 0
+                evaluator.reset_debug_vars()
                 start = time.perf_counter()
                 evaluator.search(position, 3, count_runs=True, guess_move_order=False)
-                without_order_number_total += evaluator.debug_count
+                without_order_number_total += evaluator.debug_search_count
                 without_order_time_total += time.perf_counter() - start
 
-                evaluator.debug_count = 0
+                evaluator.reset_debug_vars()
                 start = time.perf_counter()
                 evaluator.search(position, 3, count_runs=True, guess_move_order=True)
-                with_order_number_total += evaluator.debug_count
+                with_order_number_total += evaluator.debug_search_count
                 with_order_time_total += time.perf_counter() - start
     assert with_order_number_total < without_order_number_total
     assert with_order_time_total < without_order_time_total
