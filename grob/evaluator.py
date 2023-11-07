@@ -20,12 +20,7 @@ debug_count = 0
 
 def material_balance(board: chess.Board) -> float:
     """
-
-    Args:
-        board:
-
     Returns: the piece material balance of the board
-
     """
     white_value = black_value = 0
     for piece_type in piece_values:
@@ -40,12 +35,7 @@ def material_balance(board: chess.Board) -> float:
 
 def evaluate(board: chess.Board) -> float:
     """
-
-    Args:
-        board:
-
     Returns: board evaluation
-
     """
     balance = material_balance(board)
     return balance
@@ -54,13 +44,7 @@ def evaluate(board: chess.Board) -> float:
 @profile
 def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     """
-
-    Args:
-        board:
-        move:
-
     Returns: guesses the evaluation of a move for move ordering
-
     """
     guess = 0
     move_piece = board.piece_at(move.from_square)
@@ -87,17 +71,56 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
 
 
 def order_moves(board: chess.Board, moves: chess.LegalMoveGenerator) -> list[chess.Move]:
+    """
+    Returns: sorts a list of moves in place according to guess_move_evaluation
+    """
     return sorted(moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)
 
 
+def search_all_captures(board: chess.Board, alpha: float, beta: float) -> float:
+    """
+    Returns: an alpha-beta evaluation that only considers capture moves
+    """
+    evaluation = evaluate(board)
+    if evaluation >= beta:
+        return beta
+    alpha = max(alpha, evaluation)
+
+    capture_moves = [move for move in board.legal_moves if board.piece_type_at(move.to_square)]
+    sorted(capture_moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)  # since it's not a generator
+
+    for move in capture_moves:
+        board.push(move)
+        evaluation = -search_all_captures(board, -beta, -alpha)
+        board.pop()
+        if evaluation >= beta:
+            return beta
+        alpha = max(alpha, evaluation)
+    return alpha
+
+
 def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = INF,
-           count_runs: bool = False, guess_move_order: bool = True) -> float:
+           guess_move_order: bool = True, search_captures: bool = True, count_runs: bool = False) -> float:
+    """
+    Args:
+        board:
+        depth: depth to run a full search on
+        alpha: see alpha-beta pruning
+        beta: see alpha-beta pruning
+        guess_move_order: whether to sort moves according to an initial guess evaluation
+        search_captures: whether to search all captures after depth limit is reached
+        count_runs: whether to count search calls, for testing
+    Returns: a position evaluation
+    """
     if count_runs:
         global debug_count
         debug_count += 1
 
     if depth == 0:
-        return evaluate(board)
+        if search_captures:
+            return search_all_captures(board, alpha, beta)
+        else:
+            return evaluate(board)
 
     moves = board.legal_moves
     if moves.count() == 0:
@@ -128,7 +151,7 @@ def next_move(board: chess.Board, depth: int) -> chess.Move:
     best_move = None
     for move in moves:
         board.push(move)
-        if (curr_eval := -search(board, 3)) > best_eval:
+        if (curr_eval := -search(board, depth=depth)) > best_eval:
             best_eval = curr_eval
             best_move = move
         board.pop()
