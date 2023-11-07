@@ -1,3 +1,5 @@
+from itertools import chain
+
 import chess
 import logging
 
@@ -99,12 +101,21 @@ def search_all_captures(board: chess.Board, alpha: float, beta: float, levels_de
         return beta
     alpha = max(alpha, evaluation)
 
-    capture_moves = board.generate_legal_moves(chess.BB_ALL, board.occupied_co[not board.turn])
+    # unclear if this is the most efficient way of generating these moves
+    enemies = board.occupied_co[not board.turn]
+    capture_moves = board.generate_legal_moves(chess.BB_ALL, enemies)
+    important_moves = capture_moves
     if search_checks:
-        ...
+        pawn_check_moves = board.generate_legal_moves(board.pieces_mask(chess.PAWN, board.turn), enemies)
+        rook_check_moves = board.generate_legal_moves(board.pieces_mask(chess.ROOK, board.turn), enemies)
+        knight_check_moves = board.generate_legal_moves(board.pieces_mask(chess.KNIGHT, board.turn), enemies)
+        bishop_check_moves = board.generate_legal_moves(board.pieces_mask(chess.BISHOP, board.turn), enemies)
+        queen_check_moves = board.generate_legal_moves(board.pieces_mask(chess.QUEEN, board.turn), enemies)
+        important_moves = chain(capture_moves, pawn_check_moves, rook_check_moves,
+                                knight_check_moves, bishop_check_moves, queen_check_moves)
     sorted(capture_moves, key=lambda m: guess_move_evaluation(board, m), reverse=True)  # since it's not a generator
 
-    for move in capture_moves:
+    for move in important_moves:
         board.push(move)
         evaluation = -search_all_captures(board, -beta, -alpha, levels_deep=levels_deep + 1, search_checks=search_checks, debug_counts=debug_counts)
         board.pop()
