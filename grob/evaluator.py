@@ -1,6 +1,8 @@
 import chess
 import logging
 
+from line_profiler import profile
+
 piece_values = {
     chess.PAWN: 1,
     chess.KNIGHT: 3,
@@ -47,6 +49,7 @@ def evaluate(board: chess.Board) -> float:
     """
     balance = material_balance(board)
     return balance
+
 
 @profile
 def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
@@ -119,13 +122,12 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
 
 @profile
 def next_move(board: chess.Board, depth: int) -> chess.Move:
-    moves = list(board.legal_moves)
+    moves = board.legal_moves
     order_moves(board, moves)
     best_eval = -INF
     best_move = None
     for move in moves:
         board.push(move)
-        
         if (curr_eval := -search(board, 3)) > best_eval:
             best_eval = curr_eval
             best_move = move
