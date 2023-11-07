@@ -47,10 +47,8 @@ def guess_move_evaluation(board: chess.Board, move: chess.Move) -> int:
     Returns: guesses the evaluation of a move for move ordering
     """
     guess = 0
-    move_piece = board.piece_at(move.from_square)
-    move_piece_type = None if move_piece is None else move_piece.piece_type
-    capture_piece = board.piece_at(move.to_square)
-    capture_piece_type = None if capture_piece is None else capture_piece.piece_type
+    move_piece_type = board.piece_type_at(move.from_square)
+    capture_piece_type = board.piece_type_at(move.to_square)
 
     # prioritize easy captures
     if capture_piece_type is not None and move_piece_type is not None:
