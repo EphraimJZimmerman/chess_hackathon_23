@@ -9,7 +9,7 @@ from tests.grob.random_bot import RandomBot
 
 def evaluation_from_fen(fen: str) -> float:
     board = chess.Board(fen)
-    return evaluator.search(board, 2)
+    return evaluator.search(board, 2)[0]
 
 
 def test_obvious_black_win():
@@ -66,7 +66,7 @@ def test_ordering_is_more_efficient():
 
 
 def test_check_all_captures():
-    board = chess.Board("r4rk1/1p2npb1/pqn1p2p/1B1pPbp1/Q2P4/1PN1BN2/P4PPP/2R1K2R w K - 0 14")
+    board = chess.Board("r4rk1/1p2npb1/pqn1p2p/1B1pPbp1/Q2P4/1PN1BN2/P4PPP/2R1K2R b K - 0 14")
     evaluator.search(board, 0, search_captures=False, search_checks=False, debug_counts=True)
     depth_without_captures = evaluator.debug_search_depth
     count_without_captures = evaluator.debug_search_count

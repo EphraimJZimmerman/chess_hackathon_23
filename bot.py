@@ -18,7 +18,6 @@ License:
 This code is open-source and released under the MIT License. See the LICENSE file for details.
 """
 
-import random
 import chess
 import time
 from collections.abc import Iterator
@@ -45,8 +44,10 @@ def game_manager() -> Iterator[None]:
 
 
 class Bot:
-    def __init__(self, fen=None):
+    def __init__(self, fen=None, depth=3, debug=False):
         self.board = chess.Board(fen if fen else "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.depth = depth
+        self.debug = debug
 
     def check_move_is_legal(self, initial_position, new_position) -> bool:
 
@@ -63,7 +64,7 @@ class Bot:
 
         return chess.Move.from_uci(initial_position + new_position) in self.board.legal_moves
 
-    def next_move(self, depth: int = 3) -> str:
+    def next_move(self) -> str:
         """
             The main call and response loop for playing a game of chess.
 
@@ -74,9 +75,9 @@ class Bot:
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
 
-        move = str(evaluator.next_move(self.board, depth=depth))
+        _, move = evaluator.search(self.board, depth=self.depth, debug_counts=self.debug)
         # print("My move: " + move)
-        return move
+        return str(move)
 
 
 # Add promotion stuff
