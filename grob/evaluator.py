@@ -106,11 +106,20 @@ def search_all_captures(board: chess.Board, alpha: float, beta: float, levels_de
     important_moves = capture_moves
     if search_checks:
         king = board.king(not board.turn)
-        pawn_check_moves = board.generate_legal_moves(board.pieces_mask(chess.PAWN, board.turn), king)
-        rook_check_moves = board.generate_legal_moves(board.pieces_mask(chess.ROOK, board.turn), king)
-        knight_check_moves = board.generate_legal_moves(board.pieces_mask(chess.KNIGHT, board.turn), king)
-        bishop_check_moves = board.generate_legal_moves(board.pieces_mask(chess.BISHOP, board.turn), king)
-        queen_check_moves = board.generate_legal_moves(board.pieces_mask(chess.QUEEN, board.turn), king)
+        # mask logic followed according to board.attacks_mask()
+        pawn_check_moves = board.generate_legal_moves(
+            board.pieces_mask(chess.PAWN, board.turn), chess.BB_PAWN_ATTACKS[not board.turn][king])
+        rook_checks_mask = (chess.BB_RANK_ATTACKS[king][chess.BB_RANK_MASKS[king] & board.occupied] |
+                            chess.BB_FILE_ATTACKS[king][chess.BB_FILE_MASKS[king] & board.occupied])
+        rook_check_moves = board.generate_legal_moves(
+            board.pieces_mask(chess.ROOK, board.turn), rook_checks_mask)
+        knight_check_moves = board.generate_legal_moves(
+            board.pieces_mask(chess.KNIGHT, board.turn), chess.BB_KNIGHT_ATTACKS[king])
+        bishop_checks_mask = chess.BB_DIAG_ATTACKS[king][chess.BB_DIAG_MASKS[king] & board.occupied]
+        bishop_check_moves = board.generate_legal_moves(
+            board.pieces_mask(chess.BISHOP, board.turn), bishop_checks_mask)
+        queen_check_moves = board.generate_legal_moves(
+            board.pieces_mask(chess.QUEEN, board.turn), rook_checks_mask | bishop_checks_mask)
         important_moves = chain(capture_moves, pawn_check_moves, rook_check_moves,
                                 knight_check_moves, bishop_check_moves, queen_check_moves)
 

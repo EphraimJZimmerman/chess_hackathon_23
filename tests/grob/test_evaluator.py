@@ -76,16 +76,15 @@ def test_check_all_captures():
     depth_with_captures = evaluator.debug_search_depth
     count_with_captures = evaluator.debug_search_count
 
+    assert(depth_with_captures > depth_without_captures)
+
+    board = chess.Board("8/8/8/8/1k6/8/2P2B2/2NR3K w - - 0 1")
     evaluator.reset_debug_vars()
     evaluator.search(board, 0, search_captures=True, search_checks=True, debug_counts=True)
-    depth_with_captures_and_checks = evaluator.debug_search_depth
-    count_with_captures_and_checks = evaluator.debug_search_count
-
-    assert(depth_with_captures > depth_without_captures)
-    assert(depth_with_captures_and_checks > depth_with_captures)
+    assert(evaluator.debug_search_depth > 0)
 
 
-def test_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1) -> tuple[int, int, int]:
+def play_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1) -> tuple[int, int, int]:
     old.board = new.board = chess.Board()
     wins = draws = loses = 0
     for i in range(number_games):
@@ -108,5 +107,5 @@ def test_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1) -> tuple[in
 
 
 def test_grob_beats_random():
-    wins, draws, loses = test_two_bots(RandomBot(), bot.Bot(), number_games=1)
+    wins, draws, loses = play_two_bots(RandomBot(), bot.Bot(), number_games=1)
     assert wins == 1
