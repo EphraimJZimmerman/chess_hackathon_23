@@ -77,6 +77,8 @@ class Bot:
 
         _, move = evaluator.search(self.board, depth=self.depth, debug_counts=self.debug)
         # print("My move: " + move)
+        if move is None:
+            evaluator.search(self.board, depth=self.depth, debug_counts=self.debug)
         return str(move)
 
 

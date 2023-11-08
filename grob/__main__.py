@@ -7,7 +7,7 @@ from tests.grob.random_bot import RandomBot
 
 # logging.basicConfig(level=logging.DEBUG)
 
-grob_bot = Bot(debug=True)
+grob_bot = Bot(depth=5, debug=True)
 random_bot = RandomBot()
 random_bot.board = grob_bot.board
 

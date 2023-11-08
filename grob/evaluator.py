@@ -177,7 +177,7 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
         board.pop()
         if evaluation != 0:
             logging.debug(f"Eval for {move}: {evaluation}")
-        if evaluation >= beta:
+        if evaluation >= beta != INF:
             return beta, None
         if evaluation > alpha:
             alpha = evaluation
