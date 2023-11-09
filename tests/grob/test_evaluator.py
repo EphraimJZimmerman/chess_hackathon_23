@@ -84,9 +84,15 @@ def test_check_all_captures():
     assert(evaluator.debug_search_depth > 0)
 
 
-def play_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1) -> tuple[int, int, int]:
-    old.board = new.board = chess.Board()
-    wins = draws = loses = 0
+def test_endgame_skill():
+    grob = bot.Bot()
+    wins, draws, losses = play_two_bots(grob, RandomBot(), 1, fen="8/8/4R3/5K2/8/2k5/8/8 w - - 0 1")
+    assert wins == 1
+
+
+def play_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1, fen=chess.STARTING_FEN) -> tuple[int, int, int]:
+    old.board = new.board = chess.Board(fen=fen)
+    wins = draws = losses = 0
     for i in range(number_games):
         news_color = chess.WHITE if i % 2 == 0 else chess.BLACK
         while not new.board.is_game_over():
@@ -102,10 +108,10 @@ def play_two_bots(new: bot.Bot, old: bot.Bot, number_games: int = 1) -> tuple[in
             if new.board.turn == news_color:
                 wins += 1
             else:
-                loses += 1
-    return wins, draws, loses
+                losses += 1
+    return wins, draws, losses
 
 
 def test_grob_beats_random():
-    wins, draws, loses = play_two_bots(RandomBot(), bot.Bot(), number_games=1)
+    wins, draws, losses = play_two_bots(RandomBot(), bot.Bot(), number_games=1)
     assert wins == 1

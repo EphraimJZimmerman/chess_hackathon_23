@@ -44,7 +44,7 @@ def game_manager() -> Iterator[None]:
 
 
 class Bot:
-    def __init__(self, fen=None, depth=3, debug=False):
+    def __init__(self, fen=None, depth=4, debug=False):
         self.board = chess.Board(fen if fen else "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.depth = depth
         self.debug = debug

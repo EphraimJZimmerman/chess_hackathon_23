@@ -43,12 +43,33 @@ def material_balance(board: chess.Board) -> float:
         return balance
 
 
+def endgame_corner_king(board: chess.Board) -> float:
+    """
+    Returns: the proximity of kings in the board, used to corner the king in endgames
+    """
+    endgame_weight = (32 - board.occupied.bit_count()) / 29 / 10
+    evaluation = 0
+    # reward distance from center
+    enemy = board.king(not board.turn)
+    rank, file = chess.square_rank(enemy), chess.square_file(enemy)
+    file_distance = max(3 - file, file - 4)
+    rank_distance = max(3 - rank, rank - 4)
+    evaluation += file_distance + rank_distance
+
+    # reward closer kings
+    friendly = board.king(board.turn)
+    evaluation += 14 - chess.square_distance(friendly, enemy)
+
+    return evaluation * endgame_weight
+
+
 def evaluate(board: chess.Board) -> float:
     """
     Returns: board evaluation
     """
     balance = material_balance(board)
-    return balance
+    corner_king = endgame_corner_king(board)
+    return balance + corner_king
 
 
 @profile
