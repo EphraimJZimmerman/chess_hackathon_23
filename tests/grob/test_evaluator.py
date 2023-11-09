@@ -4,7 +4,7 @@ import chess
 
 import bot
 from grob import evaluator
-from tests.grob.random_bot import RandomBot
+from tests.random_bot import RandomBot
 
 
 def evaluation_from_fen(fen: str) -> float:

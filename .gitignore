@@ -1,3 +1,6 @@
 .venv/
 __pycache__/
 .ipynb_checkpoints/
+/.pytest_cache/
+/grob/.pytest_cache/
+/tests/grob/.pytest_cache/
