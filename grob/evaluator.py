@@ -6,11 +6,11 @@ import logging
 from line_profiler import profile
 
 piece_values = {
-    chess.PAWN: 1,
-    chess.KNIGHT: 3,
-    chess.BISHOP: 3.1,
-    chess.ROOK: 5,
-    chess.QUEEN: 9,
+    chess.PAWN: 10,
+    chess.KNIGHT: 30,
+    chess.BISHOP: 31,
+    chess.ROOK: 50,
+    chess.QUEEN: 90,
     chess.KING: 0,
 }
 
@@ -28,38 +28,35 @@ def reset_debug_vars():
     debug_search_depth = 0
 
 
-def material_balance(board: chess.Board) -> float:
+def material_score(board: chess.Board, color: chess.Color) -> float:
     """
-    Returns: the piece material balance of the board
+    Returns: the piece material score for a color
     """
-    white_value = black_value = 0
+    material_value = 0
     for piece_type in piece_values:
-        white_value += len(board.pieces(piece_type, chess.WHITE)) * piece_values[piece_type]
-        black_value += len(board.pieces(piece_type, chess.BLACK)) * piece_values[piece_type]
-    balance = white_value - black_value
-    if board.turn == chess.BLACK:
-        return -balance
-    else:
-        return balance
+        material_value += len(board.pieces(piece_type, color)) * piece_values[piece_type]
+    return material_value
 
 
-def endgame_corner_king(board: chess.Board) -> float:
+def endgame_corner_king(board: chess.Board, color: chess.Color, my_material: float, enemy_material: float) -> float:
     """
     Returns: the proximity of kings in the board, used to corner the king in endgames
     """
-    endgame_weight = (32 - board.occupied.bit_count()) / 29 / 10
+    endgame_weight = (32 - board.occupied.bit_count()) / 29
     evaluation = 0
-    # reward distance from center
-    enemy = board.king(not board.turn)
-    rank, file = chess.square_rank(enemy), chess.square_file(enemy)
-    file_distance = max(3 - file, file - 4)
-    rank_distance = max(3 - rank, rank - 4)
-    evaluation += file_distance + rank_distance
+    if my_material > enemy_material + piece_values[chess.PAWN] * 2 and endgame_weight > 0.5:
+        # reward distance from center
+        enemy = board.king(not color)
+        enemy_rank, enemy_file = chess.square_rank(enemy), chess.square_file(enemy)
+        file_distance = max(3 - enemy_file, enemy_file - 4)
+        rank_distance = max(3 - enemy_rank, enemy_rank - 4)
+        evaluation += file_distance + rank_distance
 
-    # reward closer kings
-    friendly = board.king(board.turn)
-    evaluation += 14 - chess.square_distance(friendly, enemy)
-
+        # reward closer kings
+        friendly = board.king(color)
+        friendly_rank, friendly_file = chess.square_rank(friendly), chess.square_file(friendly)
+        distance = abs(friendly_rank - enemy_rank) + abs(friendly_file - enemy_file)
+        evaluation += 14 - distance
     return evaluation * endgame_weight
 
 
@@ -67,9 +64,19 @@ def evaluate(board: chess.Board) -> float:
     """
     Returns: board evaluation
     """
-    balance = material_balance(board)
-    corner_king = endgame_corner_king(board)
-    return balance + corner_king
+    white_sum = 0
+    black_sum = 0
+
+    white_sum += (white_material := material_score(board, chess.WHITE))
+    black_sum += (black_material := material_score(board, chess.BLACK))
+
+    white_sum += endgame_corner_king(board, chess.WHITE, white_material, black_material)
+    black_sum += endgame_corner_king(board, chess.BLACK, black_material, white_material)
+
+    evaluation = white_sum - black_sum
+    if board.turn == chess.BLACK:
+        evaluation = -evaluation
+    return evaluation
 
 
 @profile
@@ -200,6 +207,8 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
         moves = order_moves(board, moves)
     best_move = None
     for move in moves:
+        if depth == 1 and str(move).startswith("f5e5") or str(move).startswith("f5e4"):
+            ...
         board.push(move)
         evaluation = -search(board, depth - 1, -beta, -alpha, levels_deep=levels_deep + 1,
                              guess_move_order=guess_move_order, search_captures=search_captures,
