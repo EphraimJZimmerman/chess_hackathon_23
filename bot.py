@@ -48,6 +48,10 @@ class Bot:
         self.board = chess.Board(fen if fen else "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.depth = depth
         self.debug = debug
+        try:
+            self.opening_book = evaluator.get_opening_book("../data/opening_book.txt")
+        except FileNotFoundError:
+            self.opening_book = evaluator.get_opening_book("data/opening_book.txt")  # jupyter
 
     def check_move_is_legal(self, initial_position, new_position) -> bool:
 
@@ -75,10 +79,8 @@ class Bot:
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
 
-        _, move = evaluator.search(self.board, depth=self.depth, debug_counts=self.debug)
+        _, move = evaluator.search(self.board, depth=self.depth, opening_book=self.opening_book, debug_counts=self.debug)
         # print("My move: " + move)
-        if move is None:
-            evaluator.search(self.board, depth=self.depth, debug_counts=self.debug)
         return str(move)
 
 

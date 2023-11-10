@@ -1,3 +1,4 @@
+import random
 from itertools import chain
 
 import chess
@@ -21,11 +22,31 @@ debug_search_count = 0
 debug_search_depth = 0
 
 
-def reset_debug_vars():
+def reset_debug_vars() -> None:
+    """
+    This resets the global debug variables
+    """
     global debug_search_count
     global debug_search_depth
     debug_search_count = 0
     debug_search_depth = 0
+
+
+def get_opening_book(book_file: str) -> dict[str | dict[str | int]]:
+    """
+    returns: an opening book dict, where a fen entry corresponds to a dict of moves and their corresponding weights
+    """
+    opening_book = {}
+    with open(book_file, "r") as lines:
+        fen = ""
+        for line in lines:
+            if line.startswith("pos "):  # a start of a position in the file
+                fen = line[4:-1]
+                opening_book[fen] = {}
+            else:
+                move, weight = line.split(" ")
+                opening_book[fen][move] = int(weight)
+    return opening_book
 
 
 def material_score(board: chess.Board, color: chess.Color) -> float:
@@ -42,7 +63,7 @@ def endgame_corner_king(board: chess.Board, color: chess.Color, my_material: flo
     """
     Returns: the proximity of kings in the board, used to corner the king in endgames
     """
-    endgame_weight = (32 - board.occupied.bit_count()) / 29
+    endgame_weight = (32 - board.occupied.bit_count()) / 29  # the weight hits 1.0 when 3 pieces are left on board
     evaluation = 0
     if my_material > enemy_material + piece_values[chess.PAWN] * 2 and endgame_weight > 0.5:
         # reward distance from center
@@ -169,6 +190,7 @@ def search_all_captures(board: chess.Board, alpha: float, beta: float, levels_de
 
 def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = INF, levels_deep: int = 0,
            guess_move_order: bool = True, search_captures: bool = True, search_checks: bool = True,
+           opening_book: dict[str | dict[str | int]] = None, using_opening_book: bool = True,
            debug_counts: bool = False) -> tuple[float, chess.Move | None]:
     """
     Args:
@@ -180,9 +202,21 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
         guess_move_order: whether to sort moves according to an initial guess evaluation
         search_captures: whether to search all captures after depth limit is reached
         search_checks: whether to search all checks after depth limit is reached
+        opening_book: an opening book
+        using_opening_book: whether the book is still being used
         debug_counts: whether to update global count variables
     Returns: the evaluation of the current position, along with the best move if the depth has not been reached
     """
+    if using_opening_book:
+        if opening_book is not None:
+            fen = board.fen()[:-4]
+            if fen in opening_book:
+                opening_moves: dict[str | int] = opening_book[fen]  # remove the moves portion
+                move = random.choices(list(opening_moves.keys()), list(opening_moves.values()))[0]
+                return INF, chess.Move.from_uci(move)
+        else:
+            using_opening_book = False
+
     if debug_counts:
         global debug_search_count
         global debug_search_depth
@@ -212,7 +246,9 @@ def search(board: chess.Board, depth: int, alpha: float = -INF, beta: float = IN
         board.push(move)
         evaluation = -search(board, depth - 1, -beta, -alpha, levels_deep=levels_deep + 1,
                              guess_move_order=guess_move_order, search_captures=search_captures,
-                             search_checks=search_checks, debug_counts=debug_counts)[0]
+                             search_checks=search_checks,
+                             opening_book=opening_book, using_opening_book=using_opening_book,
+                             debug_counts=debug_counts)[0]
         board.pop()
         if evaluation != 0:
             logging.debug(f"Eval for {move}: {evaluation}")

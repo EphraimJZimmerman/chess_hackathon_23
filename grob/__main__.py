@@ -1,5 +1,3 @@
-import logging
-
 from bot import Bot
 from grob import evaluator
 
@@ -14,7 +12,6 @@ if __name__ == "__main__":
         evaluator.reset_debug_vars()
         move = grob_bot.next_move()
         grob_bot.board.push_san(move)
-        logging.log()
         print(f"move: {move}, count: {evaluator.debug_search_count}, depth: {evaluator.debug_search_depth}")
         if grob_bot.board.is_game_over():
             break
