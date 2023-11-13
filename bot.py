@@ -23,6 +23,7 @@ import chess
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Iterator
 import test_bot
 
 
@@ -61,7 +62,7 @@ class Bot:
 
         return chess.Move.from_uci(initial_position + new_position) in self.board.legal_moves
 
-    def next_move(self) -> str:
+    def next_move(self,white) -> str:
         """
             The main call and response loop for playing a game of chess.
 
@@ -71,7 +72,16 @@ class Bot:
 
         # Assume that you are playing an arbitrary game. This function, which is
         # the core "brain" of the bot, should return the next move in any circumstance.
-
+        if white:
+            if self.check_move_is_legal("e2","e4"): return "e2e4"
+            if self.check_move_is_legal("f1","c4"): return "f1c4"
+            if self.check_move_is_legal("d1", "h5"): return "d1h5"
+            if self.check_move_is_legal("h5", "f7"): return "h5f7"
+        else:
+            if self.check_move_is_legal("e7", "e5"): return "e7e5"
+            if self.check_move_is_legal("f8", "c5"): return "f8c5"
+            if self.check_move_is_legal("d8", "h4"): return "d8h4"
+            if self.check_move_is_legal("h4", "f2"): return "h4f2"
         move = str(random.choice([_ for _ in self.board.legal_moves]))
         print("My move: " + move)
         return move
@@ -95,12 +105,14 @@ if __name__ == "__main__":
         """
 
         playing = True
-
+        white = True
+        if chess_bot.board.turn:
+            white = False
         while playing:
             if chess_bot.board.turn:
                 chess_bot.board.push_san(test_bot.get_move(chess_bot.board))
             else:
-                chess_bot.board.push_san(chess_bot.next_move())
+                chess_bot.board.push_san(chess_bot.next_move(white))
             print(chess_bot.board, end="\n\n")
 
             if chess_bot.board.is_game_over():
